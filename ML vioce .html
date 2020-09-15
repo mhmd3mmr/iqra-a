@@ -1,0 +1,322 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>iQraa Arabic</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		   
+		    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    		<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+  			<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier"></script>
+
+	</head>
+	<body class="is-preload">
+
+
+		<div id="page-wrapper">
+
+				<header id="header">
+					<h1 id="logo"><a href="index.html">iQraa</a></h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="#" class="button primary">Sign Up</a></li>
+						</ul>
+					</nav>
+				</header>
+
+
+				
+
+
+
+
+
+
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+
+						<h2> Welcome to iQraa</h2>
+						<p>Learn to Connect</p>
+						<h2> Turn your Microphone into a controller using a Neural Network.</h2>
+						<br>
+			   			
+
+						 <div id="console"></div>
+	
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0"> </script> 
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.2"> </script> 
+
+
+<script>
+
+
+
+
+
+
+let recognizer;
+     
+let transferRecognizer   
+
+    
+let recognizerOptions = {
+    vocabulary: 'directional4w',        
+
+    probabilityThreshold: 0.85,
+  };
+
+async function startListening(options, onResult) {
+  const {vocabulary, probabilityThreshold} = options;  
+  recognizer = speechCommands.create('BROWSER_FFT', vocabulary);
+  await recognizer.ensureModelLoaded();
+  const words = recognizer.wordLabels(); 
+    
+    
+  console.log('words')  
+  console.log(words)  
+  recognizer.params().sampleRateHz = 48000
+    
+    
+    
+  console.log('speechCommands')
+  console.log(speechCommands)
+  console.log('recognizer')
+  console.log(recognizer)
+    
+    
+    console.log(speechCommands.listSavedTransferModels)
+    
+    console.log(recognizer.wordLabels())
+      console.log('recognizer.params().sampleRateHz');
+    
+  console.log('recognizer.params().sampleRateHz');
+  console.log(recognizer.params().sampleRateHz);
+
+  
+  recognizer.listen(result => {    
+    const maxScore = Math.max(...result.scores);    
+    const maxScoreIndex = result.scores.indexOf(maxScore);    
+    const detectedWord = words[maxScoreIndex];    
+    
+    
+    if (maxScore > probabilityThreshold && maxScoreIndex < 4) {
+      onResult({
+        detectedWord,
+        detectedWordScore: maxScore,
+        scores: Array.from(result.scores),
+      });
+    }
+  });
+  
+}
+
+    
+async function startListening2(options, onResult) {
+  const {vocabulary, probabilityThreshold} = options;  
+ 
+  const words = transferRecognizer.wordLabels(); 
+    
+    
+  console.log('words')  
+  console.log(words)  
+  transferRecognizer.params().sampleRateHz = 48000
+    
+    
+    
+
+  console.log('transferRecognizer')
+  console.log(transferRecognizer)
+    
+
+  
+  transferRecognizer.listen(result => {    
+    const maxScore = Math.max(...result.scores);    
+    const maxScoreIndex = result.scores.indexOf(maxScore);    
+    const detectedWord = words[maxScoreIndex];    
+    
+    if (maxScore > probabilityThreshold && maxScoreIndex < 4) {
+      onResult({
+        detectedWord,
+        detectedWordScore: maxScore,
+        scores: Array.from(result.scores),
+      });
+    }
+  });
+  
+}
+    
+    
+    
+    
+async function stopListening() {
+  if (recognizer != null) {
+    recognizer.stopListening()
+  }
+}
+    
+    
+async function stopListening2() {
+  if (transferRecognizer != null) {
+    transferRecognizer.stopListening()
+  }
+}
+       
+    
+    
+
+function onDetection(detectionResult) {
+//  console.log('ondetection', detectionResult);
+  const { detectedWord } = detectionResult;
+  console.log(detectionResult)
+ // console.log(detectedWord)
+  document.getElementById('myDiv01').innerHTML = detectedWord
+   
+    
+
+    
+    
+}
+
+
+
+
+</script>
+
+
+<div id="myDiv01">...</div><br><br>
+
+
+
+    
+
+<input type=button value="Start 1" onclick="{
+   console.log('Started listening')    
+   startListening(recognizerOptions, onDetection);
+}">
+        
+<input type=button value="Stop 1" onclick="{
+   stopListening()
+   console.log('Stop Listening')
+
+}"> 
+  
+         
+<input type=button value="train 2" onclick="{
+
+(async function(){       
+  const NewRecognizer = speechCommands.create('BROWSER_FFT', 'directional4w');
+  await NewRecognizer.ensureModelLoaded();
+  NewRecognizer.params().sampleRateHz = 48000
+  
+  console.log('NewRecognizer.wordLabels()')  
+  console.log(NewRecognizer.wordLabels())   
+  
+       
+       
+       
+  transferRecognizer = NewRecognizer.createTransfer('directional4w');
+  console.log('Get Ready')         
+  console.log('say left')     
+  await transferRecognizer.collectExample('left');
+  console.log('say left')     
+  await transferRecognizer.collectExample('left');
+ 
+       
+  console.log('say right')     
+  await transferRecognizer.collectExample('right');
+  console.log('say right')     
+  await transferRecognizer.collectExample('right');
+       
+  console.log('say up')     
+  await transferRecognizer.collectExample('up');
+  console.log('say up')     
+  await transferRecognizer.collectExample('up');
+       
+  console.log('say down')     
+  await transferRecognizer.collectExample('down');
+  console.log('say down')     
+  await transferRecognizer.collectExample('down');
+  
+  console.log('set _background_noise_')     
+  await transferRecognizer.collectExample('_background_noise_');     
+  console.log('set _background_noise_')     
+  await transferRecognizer.collectExample('_background_noise_');     
+       
+       
+       
+       
+  console.log('Done')     
+       
+  console.log('transferRecognizer.countExamples()');      
+  console.log(transferRecognizer.countExamples());   
+       
+  console.log('transferRecognizer.wordLabels()')  
+  console.log(transferRecognizer.wordLabels())   
+       
+  //words = transferRecognizer.wordLabels();       
+  transferRecognizer.optimizer  = tf.train.sgd(0.000002); 
+       
+       
+  await transferRecognizer.train({
+  epochs: 2,
+  callback: {
+    onEpochEnd: async (epoch, logs) => {
+      console.log(`Epoch ${epoch}: loss=${logs.loss}, accuracy=${logs.acc}`);
+    }
+  }
+});     
+       
+       
+       
+  
+    console.log('Started listening')    
+   startListening(recognizerOptions, onDetection);     
+                                            
+                                            
+       
+ })()   
+       
+ 
+
+}"> 
+  
+
+</header>
+
+						
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="icons">
+						
+						<li><a href="https://web.facebook.com/iqraa1arabic" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+						<li><a href="https://www.linkedin.com/company/iqraa-arabic" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+						<li><a href="https://www.instagram.com/iqraaarabic/" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="m.alammar.mr@gmail.com" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; iqraa 2020. All rights reserved.</li>
+					</ul>
+				</footer>
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
